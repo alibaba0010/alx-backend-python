@@ -24,31 +24,9 @@ async def wait_n(n, max_delay):
         task = asyncio.create_task(wait_random(max_delay))
         tasks.append(task)
 
-    # Wait for all tasks to complete concurrently
-    await asyncio.gather(*tasks)
-
-    # Append delays to the list while maintaining order
-    for task in tasks:
-        delay = task.result()
-        # Use insertion sort to maintain order during appending
-        inserted = False
-        for i in range(len(delays)):
-            if delay <= delays[i]:
-                delays.insert(i, delay)
-                inserted = True
-                break
-        if not inserted:
-            delays.append(delay)
+      # Append delays to the list while maintaining order
+    for task in asyncio.as_completed((tasks)):
+        delay = await task
+        delays.append(delay)
 
     return delays
-
-# Example usage
-
-
-async def main():
-    # Wait for 3 random delays between 0 and 5 seconds
-    delays = await wait_n(3, 5)
-    print(f"Delays: {delays}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
